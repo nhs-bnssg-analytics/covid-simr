@@ -434,12 +434,12 @@ plot6<-outputs_cum %>%
 filename_ext<-paste0("_",tscenario)
 
 #save plots above as a grid in a pdf in same folder location as script is run from
-#pdf(paste0("output_plot",filename_ext,".pdf"),height=8,width=12)
-#grid.arrange(plot1,plot2,plot3,plot4,plot5,plot6,nrow=2)
-#dev.off()
-#png(paste0("output_plot",filename_ext,".png"),height=8,width=12,units="in",res=800)
-#grid.arrange(plot1,plot2,plot3,plot4,plot5,plot6,nrow=2)
-#dev.off()
+pdf(paste0("output_plot",filename_ext,".pdf"),height=8,width=12)
+grid.arrange(plot1,plot2,plot3,plot4,plot5,plot6,nrow=2)
+dev.off()
+png(paste0("output_plot",filename_ext,".png"),height=8,width=12,units="in",res=800)
+grid.arrange(plot1,plot2,plot3,plot4,plot5,plot6,nrow=2)
+dev.off()
 
 #save inputs (with tolerances/confinece range) and outputs as csvs,
 #in same location script was run from
