@@ -245,12 +245,16 @@ covid_simr <- function(tscenario,
     row.names = FALSE
   )
 
-  #return outputs dataframe
-  return(outputs)
-
+  #return outputs
+  out <- structure(list(data = outputs,
+                        outputs_cum = outputs_cum,
+                        inputs = inputs,
+                        uncert = uncert,
+                        cap = cap,
+                        tscenario = tscenario),
+                   class = "Covidsimr")
+  return(out)
 }
-
-
 
 #' COVID-19 ICU bed occupancy simulation
 #'
@@ -262,7 +266,6 @@ covid_simr <- function(tscenario,
 #' @param uncert  (\code{logical})
 #'
 #' @return
-#' @export
 #'
 #' @examples
 simfn <- function(rep, dates, metric, value, galpha, gbeta, cap, pfat, uncert) {
@@ -427,358 +430,377 @@ simfn <- function(rep, dates, metric, value, galpha, gbeta, cap, pfat, uncert) {
   return(cbind(data.frame(rep = rep), res))
 }
 
-# #plot the results
-#
-# #daily hospitalisations (including resampling and tolerance to give confidence ranges)
-# plot1 <- inputs %>%
-#   tidyr::pivot_wider(names_from = "metric", values_from = "value") %>%
-#   ggplot2::ggplot(ggplot2::aes(x = dates)) +
-#   ggplot2::labs(title = "Inputs: Cases requiring hospitalisation (per day)") +
-#   ggplot2::theme(
-#     axis.title.x = ggplot2::element_blank(),
-#     axis.title.y = ggplot2::element_blank(),
-#     plot.title = ggplot2::element_text(size = 11),
-#     axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
-#   ) +
-#   ggplot2::scale_x_date(
-#     date_breaks = "months",
-#     date_labels = "%b-%y",
-#     limits = c(min(outputs$dates), max(outputs$dates))
-#   )
-# if (uncert == TRUE) {
-#   plot1 <- plot1 +
-#     ggplot2::geom_ribbon(ggplot2::aes(ymin = q01, ymax = q025),
-#                          fill = "grey",
-#                          alpha = 0.6) +
-#     ggplot2::geom_ribbon(ggplot2::aes(ymin = q025, ymax = q05),
-#                          fill = "dodgerblue1",
-#                          alpha = 0.6) +
-#     ggplot2::geom_ribbon(ggplot2::aes(ymin = q05, ymax = q15),
-#                          fill = "dodgerblue2",
-#                          alpha = 0.6) +
-#     ggplot2::geom_ribbon(ggplot2::aes(ymin = q15, ymax = q30),
-#                          fill = "dodgerblue3",
-#                          alpha = 0.6) +
-#     ggplot2::geom_ribbon(ggplot2::aes(ymin = q30, ymax = q70),
-#                          fill = "dodgerblue4",
-#                          alpha = 0.6) +
-#     ggplot2::geom_ribbon(ggplot2::aes(ymin = q70, ymax = q85),
-#                          fill = "dodgerblue3",
-#                          alpha = 0.6) +
-#     ggplot2::geom_ribbon(ggplot2::aes(ymin = q85, ymax = q95),
-#                          fill = "dodgerblue2",
-#                          alpha = 0.6) +
-#     ggplot2::geom_ribbon(ggplot2::aes(ymin = q95, ymax = q975),
-#                          fill = "dodgerblue1",
-#                          alpha = 0.6) +
-#     ggplot2::geom_ribbon(ggplot2::aes(ymin = q975, ymax = q99),
-#                          fill = "grey",
-#                          alpha = 0.6)
-# }
-# plot1 <- plot1 +
-#   ggplot2::geom_line(ggplot2::aes(y = hospitalisations))
-#
-# #bed occupancy over simulation period
-# plot2 <- outputs %>%
-#   ggplot2::ggplot(ggplot2::aes(x = dates)) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q01, ymax = occ_q025),
-#                        fill = "darkgray",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q025, ymax = occ_q05),
-#                        fill = "darkorchid1",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q05, ymax = occ_q15),
-#                        fill = "darkorchid2",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q15, ymax = occ_q30),
-#                        fill = "darkorchid3",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q30, ymax = occ_q70),
-#                        fill = "darkorchid4",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q70, ymax = occ_q85),
-#                        fill = "darkorchid3",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q85, ymax = occ_q95),
-#                        fill = "darkorchid2",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q95, ymax = occ_q975),
-#                        fill = "darkorchid1",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q975, ymax = occ_q99),
-#                        fill = "darkgray",
-#                        alpha = 0.6) +
-#   ggplot2::geom_hline(yintercept = cap,
-#                       linetype = "dashed",
-#                       colour = "darkgray") +
-#   ggplot2::geom_line(ggplot2::aes(y = occ_median)) +
-#   ggplot2::labs(title = paste0("Outputs: Occupied beds (capacity inputted=", cap, ")")) +
-#   ggplot2::theme(
-#     axis.title.x = ggplot2::element_blank(),
-#     axis.title.y = ggplot2::element_blank(),
-#     plot.title = ggplot2::element_text(size = 11),
-#     axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
-#   ) +
-#   ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y")
-#
-# #deaths resulting from insufficient capacity over simulation period
-# plot3 <- outputs %>%
-#   ggplot2::ggplot(ggplot2::aes(x = dates)) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q01, ymax = rejected_died_q025),
-#     fill = "yellow1",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q025, ymax = rejected_died_q05),
-#     fill = "orange2",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q05, ymax = rejected_died_q15),
-#     fill = "orangered3",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q15, ymax = rejected_died_q30),
-#     fill = "red3",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q30, ymax = rejected_died_q70),
-#     fill = "red2",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q70, ymax = rejected_died_q85),
-#     fill = "red3",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q85, ymax = rejected_died_q95),
-#     fill = "orangered3",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q95, ymax = rejected_died_q975),
-#     fill = "orange2",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q975, ymax = rejected_died_q99),
-#     fill = "yellow1",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_line(ggplot2::aes(y = rejected_died_median)) +
-#   ggplot2::labs(title = "Outputs: Capacity-dependent deaths (per day)") +
-#   ggplot2::theme(
-#     axis.title.x = ggplot2::element_blank(),
-#     axis.title.y = ggplot2::element_blank(),
-#     plot.title = ggplot2::element_text(size = 11),
-#     axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
-#   ) +
-#   ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y")
-#
-# #cumulative total of admitted patients over simulation period
-# plot4 <- outputs_cum %>%
-#   ggplot2::ggplot(ggplot2::aes(x = dates)) +
-#   #admitted
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q01, ymax = admitted_q025),
-#                        fill = "darkorange",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q025, ymax = admitted_q05),
-#                        fill = "darkorange1",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q05, ymax = admitted_q15),
-#                        fill = "darkorange2",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q15, ymax = admitted_q30),
-#                        fill = "darkorange3",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q30, ymax = admitted_q70),
-#                        fill = "darkorange4",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q70, ymax = admitted_q85),
-#                        fill = "darkorange3",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q85, ymax = admitted_q95),
-#                        fill = "darkorange2",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q95, ymax = admitted_q975),
-#                        fill = "darkorange1",
-#                        alpha = 0.6) +
-#   ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q975, ymax = admitted_q99),
-#                        fill = "darkorange",
-#                        alpha = 0.6) +
-#   ggplot2::geom_line(ggplot2::aes(y = admitted_median)) +
-#   ggplot2::labs(title = "Outputs: Cumulative total for admitted patients") +
-#   ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y") +
-#   ggplot2::ylim(
-#     0,
-#     max(
-#       outputs_cum$admitted_q99,
-#       outputs_cum$rejected_died_q99,
-#       outputs_cum$rejected_survived_q99
-#     )
-#   ) +
-#   ggplot2::theme(
-#     axis.title.x = ggplot2::element_blank(),
-#     axis.title.y = ggplot2::element_blank(),
-#     plot.title = ggplot2::element_text(size = 11),
-#     axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
-#   )
-#
-# #cumulative total of patients who could not be admitted because of capacity constraints but did
-# #surivive, over simulation period
-# plot5 <- outputs_cum %>%
-#   ggplot2::ggplot(ggplot2::aes(x = dates)) +
-#   #rejected-survived
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_survived_q01, ymax = rejected_survived_q025),
-#     fill = "chartreuse",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_survived_q025, ymax = rejected_survived_q05),
-#     fill = "chartreuse1",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_survived_q05, ymax = rejected_survived_q15),
-#     fill = "chartreuse2",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_survived_q15, ymax = rejected_survived_q30),
-#     fill = "chartreuse3",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_survived_q30, ymax = rejected_survived_q70),
-#     fill = "chartreuse4",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_survived_q70, ymax = rejected_survived_q85),
-#     fill = "chartreuse3",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_survived_q85, ymax = rejected_survived_q95),
-#     fill = "chartreuse2",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_survived_q95, ymax = rejected_survived_q975),
-#     fill = "chartreuse1",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_survived_q975, ymax = rejected_survived_q99),
-#     fill = "chartreuse",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_line(ggplot2::aes(y = rejected_survived_median)) +
-#   ggplot2::labs(title = "Outputs: Cumulative total for rejected and survived") +
-#   ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y") +
-#   ggplot2::ylim(
-#     0,
-#     max(
-#       outputs_cum$admitted_q99,
-#       outputs_cum$rejected_died_q99,
-#       outputs_cum$rejected_survived_q99
-#     )
-#   ) +
-#   ggplot2::theme(
-#     axis.title.x = ggplot2::element_blank(),
-#     axis.title.y = ggplot2::element_blank(),
-#     plot.title = ggplot2::element_text(size = 11),
-#     axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
-#   )
-#
-# #cumulative total of patients who died as a result of insufficent capacity over simulation period
-# plot6 <- outputs_cum %>%
-#   ggplot2::ggplot(ggplot2::aes(x = dates)) +
-#   #rejected-died
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q01, ymax = rejected_died_q025),
-#     fill = "yellow1",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q025, ymax = rejected_died_q05),
-#     fill = "orange2",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q05, ymax = rejected_died_q15),
-#     fill = "orangered3",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q15, ymax = rejected_died_q30),
-#     fill = "red3",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q30, ymax = rejected_died_q70),
-#     fill = "red2",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q70, ymax = rejected_died_q85),
-#     fill = "red3",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q85, ymax = rejected_died_q95),
-#     fill = "orangered3",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q95, ymax = rejected_died_q975),
-#     fill = "orange2",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_ribbon(
-#     ggplot2::aes(ymin = rejected_died_q975, ymax = rejected_died_q99),
-#     fill = "yellow1",
-#     alpha = 0.6
-#   ) +
-#   ggplot2::geom_line(ggplot2::aes(y = rejected_died_median)) +
-#   ggplot2::labs(title = "Outputs: Cumulative total for rejected and died") +
-#   ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y") +
-#   ggplot2::ylim(
-#     0,
-#     max(
-#       outputs_cum$admitted_q99,
-#       outputs_cum$rejected_died_q99,
-#       outputs_cum$rejected_survived_q99
-#     )
-#   ) +
-#   ggplot2::theme(
-#     axis.title.x = ggplot2::element_blank(),
-#     axis.title.y = ggplot2::element_blank(),
-#     plot.title = ggplot2::element_text(size = 11),
-#     axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
-#   )
-#
-#
-# #string to use in filename to save outputs
-# filename_ext <- paste0("_", tscenario)
-#
-# #save plots above as a grid in a pdf in same folder location as script is run from
-# grDevices::pdf(paste0("output_plot", filename_ext, ".pdf"),
-#                height = 8,
-#                width = 12)
-# gridExtra::grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, nrow = 2)
-# grDevices::dev.off()
-# grDevices::png(
-#   paste0("output_plot", filename_ext, ".png"),
-#   height = 8,
-#   width = 12,
-#   units = "in",
-#   res = 800
-# )
-# gridExtra::grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, nrow = 2)
-# grDevices::dev.off()
+#' Plot output of COVID-19 simulation
+#'
+#' @param inputs PLACEHOLDER
+#' @param outputs_cum PLACEHOLDER
+#'
+#' @return
+#'
+#' @examples
+plot.Covidsimr <- function(x, ...) {
+  inputs  <- x$inputs
+  outputs <- x$data
+  outputs_cum <- x$outputs_cum
+  uncert <- x$uncert
+  cap <-x$cap
+  tscenario <- x$tscenario
+
+  #plot the results
+  #daily hospitalisations (including resampling and tolerance to give confidence ranges)
+  plot1 <- inputs %>%
+    tidyr::pivot_wider(names_from = "metric", values_from = "value") %>%
+    ggplot2::ggplot(ggplot2::aes(x = dates)) +
+    ggplot2::labs(title = "Inputs: Cases requiring hospitalisation (per day)") +
+    ggplot2::theme(
+      axis.title.x = ggplot2::element_blank(),
+      axis.title.y = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(size = 11),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+    ) +
+    ggplot2::scale_x_date(
+      date_breaks = "months",
+      date_labels = "%b-%y",
+      limits = c(min(outputs$dates), max(outputs$dates))
+    )
+  if (uncert == TRUE) {
+    plot1 <- plot1 +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = q01, ymax = q025),
+                           fill = "grey",
+                           alpha = 0.6) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = q025, ymax = q05),
+                           fill = "dodgerblue1",
+                           alpha = 0.6) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = q05, ymax = q15),
+                           fill = "dodgerblue2",
+                           alpha = 0.6) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = q15, ymax = q30),
+                           fill = "dodgerblue3",
+                           alpha = 0.6) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = q30, ymax = q70),
+                           fill = "dodgerblue4",
+                           alpha = 0.6) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = q70, ymax = q85),
+                           fill = "dodgerblue3",
+                           alpha = 0.6) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = q85, ymax = q95),
+                           fill = "dodgerblue2",
+                           alpha = 0.6) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = q95, ymax = q975),
+                           fill = "dodgerblue1",
+                           alpha = 0.6) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = q975, ymax = q99),
+                           fill = "grey",
+                           alpha = 0.6)
+  }
+  plot1 <- plot1 +
+    ggplot2::geom_line(ggplot2::aes(y = hospitalisations))
+
+  #bed occupancy over simulation period
+  plot2 <- outputs %>%
+    ggplot2::ggplot(ggplot2::aes(x = dates)) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q01, ymax = occ_q025),
+                         fill = "darkgray",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q025, ymax = occ_q05),
+                         fill = "darkorchid1",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q05, ymax = occ_q15),
+                         fill = "darkorchid2",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q15, ymax = occ_q30),
+                         fill = "darkorchid3",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q30, ymax = occ_q70),
+                         fill = "darkorchid4",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q70, ymax = occ_q85),
+                         fill = "darkorchid3",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q85, ymax = occ_q95),
+                         fill = "darkorchid2",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q95, ymax = occ_q975),
+                         fill = "darkorchid1",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = occ_q975, ymax = occ_q99),
+                         fill = "darkgray",
+                         alpha = 0.6) +
+    ggplot2::geom_hline(yintercept = cap,
+                        linetype = "dashed",
+                        colour = "darkgray") +
+    ggplot2::geom_line(ggplot2::aes(y = occ_median)) +
+    ggplot2::labs(title = paste0("Outputs: Occupied beds (capacity inputted=", cap, ")")) +
+    ggplot2::theme(
+      axis.title.x = ggplot2::element_blank(),
+      axis.title.y = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(size = 11),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+    ) +
+    ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y")
+
+  #deaths resulting from insufficient capacity over simulation period
+  plot3 <- outputs %>%
+    ggplot2::ggplot(ggplot2::aes(x = dates)) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q01, ymax = rejected_died_q025),
+      fill = "yellow1",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q025, ymax = rejected_died_q05),
+      fill = "orange2",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q05, ymax = rejected_died_q15),
+      fill = "orangered3",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q15, ymax = rejected_died_q30),
+      fill = "red3",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q30, ymax = rejected_died_q70),
+      fill = "red2",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q70, ymax = rejected_died_q85),
+      fill = "red3",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q85, ymax = rejected_died_q95),
+      fill = "orangered3",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q95, ymax = rejected_died_q975),
+      fill = "orange2",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q975, ymax = rejected_died_q99),
+      fill = "yellow1",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_line(ggplot2::aes(y = rejected_died_median)) +
+    ggplot2::labs(title = "Outputs: Capacity-dependent deaths (per day)") +
+    ggplot2::theme(
+      axis.title.x = ggplot2::element_blank(),
+      axis.title.y = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(size = 11),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+    ) +
+    ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y")
+
+  #cumulative total of admitted patients over simulation period
+  plot4 <- outputs_cum %>%
+    ggplot2::ggplot(ggplot2::aes(x = dates)) +
+    #admitted
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q01, ymax = admitted_q025),
+                         fill = "darkorange",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q025, ymax = admitted_q05),
+                         fill = "darkorange1",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q05, ymax = admitted_q15),
+                         fill = "darkorange2",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q15, ymax = admitted_q30),
+                         fill = "darkorange3",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q30, ymax = admitted_q70),
+                         fill = "darkorange4",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q70, ymax = admitted_q85),
+                         fill = "darkorange3",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q85, ymax = admitted_q95),
+                         fill = "darkorange2",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q95, ymax = admitted_q975),
+                         fill = "darkorange1",
+                         alpha = 0.6) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = admitted_q975, ymax = admitted_q99),
+                         fill = "darkorange",
+                         alpha = 0.6) +
+    ggplot2::geom_line(ggplot2::aes(y = admitted_median)) +
+    ggplot2::labs(title = "Outputs: Cumulative total for admitted patients") +
+    ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y") +
+    ggplot2::ylim(
+      0,
+      max(
+        outputs_cum$admitted_q99,
+        outputs_cum$rejected_died_q99,
+        outputs_cum$rejected_survived_q99
+      )
+    ) +
+    ggplot2::theme(
+      axis.title.x = ggplot2::element_blank(),
+      axis.title.y = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(size = 11),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+    )
+
+  #cumulative total of patients who could not be admitted because of capacity constraints but did
+  #surivive, over simulation period
+  plot5 <- outputs_cum %>%
+    ggplot2::ggplot(ggplot2::aes(x = dates)) +
+    #rejected-survived
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_survived_q01, ymax = rejected_survived_q025),
+      fill = "chartreuse",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_survived_q025, ymax = rejected_survived_q05),
+      fill = "chartreuse1",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_survived_q05, ymax = rejected_survived_q15),
+      fill = "chartreuse2",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_survived_q15, ymax = rejected_survived_q30),
+      fill = "chartreuse3",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_survived_q30, ymax = rejected_survived_q70),
+      fill = "chartreuse4",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_survived_q70, ymax = rejected_survived_q85),
+      fill = "chartreuse3",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_survived_q85, ymax = rejected_survived_q95),
+      fill = "chartreuse2",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_survived_q95, ymax = rejected_survived_q975),
+      fill = "chartreuse1",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_survived_q975, ymax = rejected_survived_q99),
+      fill = "chartreuse",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_line(ggplot2::aes(y = rejected_survived_median)) +
+    ggplot2::labs(title = "Outputs: Cumulative total for rejected and survived") +
+    ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y") +
+    ggplot2::ylim(
+      0,
+      max(
+        outputs_cum$admitted_q99,
+        outputs_cum$rejected_died_q99,
+        outputs_cum$rejected_survived_q99
+      )
+    ) +
+    ggplot2::theme(
+      axis.title.x = ggplot2::element_blank(),
+      axis.title.y = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(size = 11),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+    )
+
+  #cumulative total of patients who died as a result of insufficent capacity over simulation period
+  plot6 <- outputs_cum %>%
+    ggplot2::ggplot(ggplot2::aes(x = dates)) +
+    #rejected-died
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q01, ymax = rejected_died_q025),
+      fill = "yellow1",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q025, ymax = rejected_died_q05),
+      fill = "orange2",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q05, ymax = rejected_died_q15),
+      fill = "orangered3",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q15, ymax = rejected_died_q30),
+      fill = "red3",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q30, ymax = rejected_died_q70),
+      fill = "red2",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q70, ymax = rejected_died_q85),
+      fill = "red3",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q85, ymax = rejected_died_q95),
+      fill = "orangered3",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q95, ymax = rejected_died_q975),
+      fill = "orange2",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = rejected_died_q975, ymax = rejected_died_q99),
+      fill = "yellow1",
+      alpha = 0.6
+    ) +
+    ggplot2::geom_line(ggplot2::aes(y = rejected_died_median)) +
+    ggplot2::labs(title = "Outputs: Cumulative total for rejected and died") +
+    ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y") +
+    ggplot2::ylim(
+      0,
+      max(
+        outputs_cum$admitted_q99,
+        outputs_cum$rejected_died_q99,
+        outputs_cum$rejected_survived_q99
+      )
+    ) +
+    ggplot2::theme(
+      axis.title.x = ggplot2::element_blank(),
+      axis.title.y = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(size = 11),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+    )
+
+
+  #string to use in filename to save outputs
+  filename_ext <- paste0("_", tscenario)
+
+  #save plots above as a grid in a pdf in same folder location as script is run from
+  # grDevices::pdf(paste0("output_plot", filename_ext, ".pdf"),
+  #                height = 8,
+  #                width = 12)
+  gridExtra::grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, nrow = 2)
+  # grDevices::dev.off()
+  # grDevices::png(
+  #   paste0("output_plot", filename_ext, ".png"),
+  #   height = 8,
+  #   width = 12,
+  #   units = "in",
+  #   res = 800
+  # )
+  # gridExtra::grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, nrow = 2)
+  # grDevices::dev.off()
+
+}
+
+
