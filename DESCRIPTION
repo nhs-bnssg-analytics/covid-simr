@@ -21,3 +21,5 @@ Imports:
     gridExtra,
     magrittr,
     grDevices
+Depends: 
+    R (>= 2.10)

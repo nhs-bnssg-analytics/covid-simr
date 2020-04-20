@@ -4,11 +4,9 @@
 \alias{covid_simr}
 \title{Covid-19 ICU bed-occupancy simulation}
 \usage{
-covid_simr(tscenario, cases, galpha, gbeta, cap, pfat, tol = 25, nreps = 100)
+covid_simr(cases, galpha, gbeta, cap, pfat, tol = 25, nreps = 100)
 }
 \arguments{
-\item{tscenario}{(\code{string}), name to give the simulation scenario}
-
 \item{cases}{(\code{data.frame}), hosptialisation data, one column named \code{date} (string), and one column named \code{hospitalisations} which is an integer recording new cases for that date.}
 
 \item{galpha}{(\code{positive numeric}), median length of stay for admitted covid19 pateints, to be estimated by user from data or other source}
