@@ -8,7 +8,7 @@
 #' @param tol (\code{numeric} between 0 and 100, with 0 corresponding to full confidence inputs are correct, with 100 least level of confidence), subjective assessment of reliability of input hospitalisation estiamtes
 #' @param nreps (\code{positive integer}), number of simulation replications to perform - larger number means better results, but longer time to compute
 #'
-#' @return An object of type \code{Covidsimr}, which has
+#' @return An object of type \code{Covidsimr}
 #' @export
 #'
 #' @importFrom magrittr %>%
@@ -483,9 +483,9 @@ plot_case_scenario <- function(case_df, display = TRUE) {
   p <- ggplot2::ggplot(case_df,
                        ggplot2::aes(x = lubridate::dmy(dates),
                                     y = hospitalisations))
-  p <- p + geom_line()
-  p <- p + labs(title = "Hospitlisations over time",
-                x = "Date")
+  p <- p + ggplot2::geom_line()
+  p <- p + ggplot2::labs(title = "Hospitlisations over time",
+                         x = "Date")
   print(p)
 }
 

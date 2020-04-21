@@ -4,13 +4,11 @@
 \name{cases_do_nothing}
 \alias{cases_do_nothing}
 \title{Time series of hospitalisations over time with a 'do nothing' scenario.}
-\format{
-A data frame with 306 rows and 2 variables:
+\format{A data frame with 306 rows and 2 variables:
 \describe{
 \item{dates}{\code{string}, date}
 \item{hospitalisations}{\code{int}, hopitalisation cases}
-}
-}
+}}
 \usage{
 cases_do_nothing
 }

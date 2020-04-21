@@ -4,13 +4,11 @@
 \name{cases_current_strategy}
 \alias{cases_current_strategy}
 \title{Time series of hospitalisations over time with current strategy.}
-\format{
-A data frame with 306 rows and 2 variables:
+\format{A data frame with 306 rows and 2 variables:
 \describe{
 \item{dates}{\code{string}, date}
 \item{hospitalisations}{\code{int}, hopitalisation cases}
-}
-}
+}}
 \usage{
 cases_current_strategy
 }
