@@ -1,12 +1,16 @@
 Package: covidsimR
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R: c( 
     person(given = "Richard",
            family = "Wood",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "first.last@example.com"),
+           person(given = "Nick",
+           family = "Howlett",
+           role = c("ctb"),
+           email = "nhowlett87@gmail.com")
+           )
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8

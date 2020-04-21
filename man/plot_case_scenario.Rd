@@ -11,7 +11,7 @@ A data frame with 2 variables:
 }
 }
 \usage{
-plot_case_scenario(case_df)
+plot_case_scenario(case_df, display = TRUE)
 }
 \value{
 

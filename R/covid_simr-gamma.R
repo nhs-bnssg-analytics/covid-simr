@@ -117,7 +117,6 @@ covid_simr <- function(cases,
     inputs <- rbind(inputs, inputs_sim_ci)
   }
 
-
   #Now run nreps replications of the simulation function to get results for nreps possible
   #actualisations of the parameters
 
@@ -423,6 +422,10 @@ simfn <- function(rep, dates, metric, value, galpha, gbeta, cap, pfat, uncert) {
   }
   res <- res %>% tidyr::fill(occ)
   return(cbind(data.frame(rep = rep), res))
+}
+
+print.Covidsimr <- function(x, ...){
+  print(tibble(x$data))
 }
 
 #' Plot output of COVID-19 simulation
