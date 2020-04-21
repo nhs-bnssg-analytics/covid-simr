@@ -8,10 +8,12 @@ surivive, over simulation period}
 plot_cum_total_nonadmitted_surv(outputs_cum, display = TRUE)
 }
 \arguments{
-\item{display}{}
+\item{outputs_cum}{\code{data.frame}, cummalative output data.}
+
+\item{display}{\code{log}, defaults to \code{TRUE}. Should the plot display or not.}
 }
 \value{
-
+Plot of those not admitted but survived over time. Invisibly returns the plot object.
 }
 \description{
 Plot cumulative total of patients who could not be admitted because of capacity constraints but did

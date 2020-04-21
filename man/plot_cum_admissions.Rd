@@ -7,10 +7,12 @@
 plot_cum_admissions(outputs_cum, display = TRUE)
 }
 \arguments{
-\item{display}{}
+\item{outputs_cum}{\code{data.frame}, cummalative output data.}
+
+\item{display}{\code{log}, defaults to \code{TRUE}. Should the plot display or not.}
 }
 \value{
-
+Plot of cumulative total addmitted patients over time. Invisibly returns the plot object.
 }
 \description{
 Plot cumulative total of admitted patients over simulation period

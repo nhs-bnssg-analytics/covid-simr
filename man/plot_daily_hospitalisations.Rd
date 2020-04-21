@@ -7,10 +7,16 @@
 plot_daily_hospitalisations(inputs, outputs, uncert, display = TRUE)
 }
 \arguments{
-\item{display}{}
+\item{inputs}{PLACEHOLDER}
+
+\item{outputs}{\code{data.frame}, output data from simulation.}
+
+\item{uncert}{\code{log}, does the simulation include uncertainty.}
+
+\item{display}{\code{log}, defaults to \code{TRUE}. Should the plot display or not.}
 }
 \value{
-
+Time series plot of daily hospitalistions. Invisibly returns the plot object.
 }
 \description{
 Plot daily hospitalisations (including resampling and tolerance to give confidence ranges)

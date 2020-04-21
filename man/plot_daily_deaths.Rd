@@ -7,10 +7,12 @@
 plot_daily_deaths(outputs, display = TRUE)
 }
 \arguments{
-\item{display}{}
+\item{outputs}{\code{data.frame}, output data from simulation.}
+
+\item{display}{\code{log}, defaults to \code{TRUE}. Should the plot display or not.}
 }
 \value{
-
+Time-series plot of daily deaths from insufficient capacity. Invisibly returns the plot object.
 }
 \description{
 Plot daily deaths result from insufficient capacity over simulation period

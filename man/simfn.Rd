@@ -15,18 +15,18 @@ simfn(rep, dates, metric, value, galpha, gbeta, cap, pfat, uncert)
 
 \item{value}{PLACEHOLDER}
 
-\item{galpha}{(\code{positive numeric}), median length of stay for admitted covid19 pateints, to be estimated by user from data or other source}
+\item{galpha}{\code{positive numeric}, median length of stay for admitted covid19 pateints, to be estimated by user from data or other source}
 
-\item{gbeta}{(\code{positive numeric}), 0.95 quantile length of stay for admitted covid19 patients, to be estimated by user from data or other source}
+\item{gbeta}{\code{positive numeric}, 0.95 quantile length of stay for admitted covid19 patients, to be estimated by user from data or other source}
 
-\item{cap}{(\code{positive integer}), maximum number of patients who can be concurrently admitted to the hospital/unit}
+\item{cap}{\code{positive integer}, maximum number of patients who can be concurrently admitted to the hospital/unit}
 
-\item{pfat}{(\code{numeric} in range 0 (no chance of death)`  to 1 (certain death)), probability that a patient who arrives but is rejected/cannot be admitted (because there are no beds free) dies}
+\item{pfat}{\code{numeric} in range 0 (no chance of death) to 1 (certain death), probability that a patient who arrives but is rejected/cannot be admitted (because there are no beds free) dies}
 
-\item{uncert}{(\code{logical})}
+\item{uncert}{\code{log}, does the simulation include uncertainty.}
 }
 \value{
-
+Results of simulation.
 }
 \description{
 COVID-19 ICU bed occupancy simulation

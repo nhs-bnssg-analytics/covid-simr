@@ -7,10 +7,14 @@
 plot_daily_bed_occupancy(outputs, cap, display = TRUE)
 }
 \arguments{
-\item{display}{}
+\item{outputs}{\code{data.frame}, output data from simulation.}
+
+\item{cap}{\code{int}, the bed capacity.}
+
+\item{display}{\code{log}, defaults to \code{TRUE}. Should the plot display or not.}
 }
 \value{
-
+Time-siries plot of daily bed occupancy. Invisibly returns the plot object.
 }
 \description{
 Plot daily bed occupancy over simulation period

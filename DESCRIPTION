@@ -25,6 +25,7 @@ Imports:
     gridExtra,
     magrittr,
     grDevices,
-    tibble
+    tibble,
+    lubridate
 Depends: 
     R (>= 2.10)
