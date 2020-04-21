@@ -2,4 +2,10 @@
 
 export(covid_simr)
 export(plot_case_scenario)
+export(plot_cum_admissions)
+export(plot_cum_died_inscap)
+export(plot_cum_total_nonadmitted_surv)
+export(plot_daily_bed_occupancy)
+export(plot_daily_deaths)
+export(plot_daily_hospitalisations)
 importFrom(magrittr,"%>%")

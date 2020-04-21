@@ -11,9 +11,6 @@
 
 \item{outputs_cum}{PLACEHOLDER}
 }
-\value{
-
-}
 \description{
 Plot output of COVID-19 simulation
 }

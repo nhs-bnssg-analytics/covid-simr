@@ -433,7 +433,6 @@ print.Covidsimr <- function(x, ...){
 #' @param inputs PLACEHOLDER
 #' @param outputs_cum PLACEHOLDER
 #'
-#' @return
 #'
 #' @examples
 plot.Covidsimr <- function(x, ...) {
@@ -491,6 +490,17 @@ plot_case_scenario <- function(case_df, display = TRUE) {
 }
 
 
+#' Plot daily hospitalisations (including resampling and tolerance to give confidence ranges)
+#'
+#' @param inputs
+#' @param outputs
+#' @param uncert
+#' @param display
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_daily_hospitalisations <- function(inputs, outputs, uncert, display = TRUE) {
   #daily hospitalisations (including resampling and tolerance to give confidence ranges)
   plot <- inputs %>%
@@ -546,6 +556,16 @@ plot_daily_hospitalisations <- function(inputs, outputs, uncert, display = TRUE)
 }
 
 
+#' Plot daily bed occupancy over simulation period
+#'
+#' @param outputs
+#' @param cap
+#' @param display
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_daily_bed_occupancy <- function(outputs, cap, display=TRUE) {
   #bed occupancy over simulation period
   plot <- outputs %>%
@@ -594,6 +614,15 @@ plot_daily_bed_occupancy <- function(outputs, cap, display=TRUE) {
   invisible(plot)
 }
 
+#' Plot daily deaths result from insufficient capacity over simulation period
+#'
+#' @param outputs
+#' @param display
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_daily_deaths <- function(outputs, display = TRUE) {
   #deaths resulting from insufficient capacity over simulation period
   plot <- outputs %>%
@@ -658,6 +687,15 @@ plot_daily_deaths <- function(outputs, display = TRUE) {
 }
 
 
+#' Plot cumulative total of admitted patients over simulation period
+#'
+#' @param outputs_cum
+#' @param display
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_cum_admissions <- function(outputs_cum, display=TRUE) {
   #cumulative total of admitted patients over simulation period
   plot <- outputs_cum %>%
@@ -713,6 +751,16 @@ plot_cum_admissions <- function(outputs_cum, display=TRUE) {
 }
 
 
+#' Plot cumulative total of patients who could not be admitted because of capacity constraints but did
+#'   surivive, over simulation period
+#'
+#' @param outputs_cum
+#' @param display
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_cum_total_nonadmitted_surv <- function(outputs_cum, display=TRUE) {
   #cumulative total of patients who could not be admitted because of capacity constraints but did
   #surivive, over simulation period
@@ -786,6 +834,15 @@ plot_cum_total_nonadmitted_surv <- function(outputs_cum, display=TRUE) {
   invisible(plot)
 }
 
+#' Plot cumulative total of patients who died as a result of insufficent capacity over simulation period
+#'
+#' @param outputs_cum
+#' @param display
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_cum_died_inscap <- function(outputs_cum, display=TRUE) {
   #cumulative total of patients who died as a result of insufficent capacity over simulation period
   plot <- outputs_cum %>%
