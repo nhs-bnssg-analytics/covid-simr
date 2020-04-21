@@ -3,13 +3,11 @@
 \name{plot_case_scenario}
 \alias{plot_case_scenario}
 \title{Hospitalisation time-series plotting function}
-\format{
-A data frame with 2 variables:
+\format{A data frame with 2 variables:
 \describe{
 \item{dates}{\code{string}, date}
 \item{hospitalisations}{\code{int}, hopitalisation cases}
-}
-}
+}}
 \usage{
 plot_case_scenario(case_df, display = TRUE)
 }

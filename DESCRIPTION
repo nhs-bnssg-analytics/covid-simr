@@ -5,7 +5,7 @@ Authors@R: c(
     person(given = "Richard",
            family = "Wood",
            role = c("aut", "cre"),
-           email = "first.last@example.com"),
+           email = "richard.wood16@nhs.net"),
            person(given = "Nick",
            family = "Howlett",
            role = c("ctb"),
@@ -24,6 +24,7 @@ Imports:
     ggplot2,
     gridExtra,
     magrittr,
-    grDevices
+    grDevices,
+    tibble
 Depends: 
     R (>= 2.10)
