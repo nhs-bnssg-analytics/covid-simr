@@ -22,7 +22,7 @@ covid_simr(cases, galpha, gbeta, cap, pfat, tol = 25, nreps = 100)
 \item{nreps}{(\code{positive integer}), number of simulation replications to perform - larger number means better results, but longer time to compute}
 }
 \value{
-An object of type \code{Covidsimr}, which has
+An object of type \code{Covidsimr}
 }
 \description{
 Covid-19 ICU bed-occupancy simulation

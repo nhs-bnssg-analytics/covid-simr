@@ -432,6 +432,7 @@ print.Covidsimr <- function(x, ...){
 #'
 #' @param inputs PLACEHOLDER
 #' @param outputs_cum PLACEHOLDER
+#' @export
 #'
 #'
 #' @examples
