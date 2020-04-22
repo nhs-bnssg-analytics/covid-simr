@@ -1,31 +1,30 @@
 Package: covidsimR
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
-Authors@R: c( 
-    person(given = "Richard",
-           family = "Wood",
-           role = c("aut", "cre"),
-           email = "richard.wood16@nhs.net"),
-           person(given = "Nick",
-           family = "Howlett",
-           role = c("ctb"),
-           email = "nhowlett87@gmail.com")
-           )
+Authors@R: 
+    c(person(given = "Richard",
+             family = "Wood",
+             role = c("aut", "cre"),
+             email = "richard.wood16@nhs.net"),
+      person(given = "Nick",
+             family = "Howlett",
+             role = "ctb",
+             email = "nhowlett87@gmail.com"))
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
+Depends: 
+    R (>= 2.10)
+Imports: 
+    dplyr,
+    ggplot2,
+    grDevices,
+    gridExtra,
+    lubridate,
+    magrittr,
+    parallel,
+    tibble,
+    tidyr
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
-Imports: 
-    parallel,
-    tidyr,
-    dplyr,
-    ggplot2,
-    gridExtra,
-    magrittr,
-    grDevices,
-    tibble,
-    lubridate
-Depends: 
-    R (>= 2.10)
