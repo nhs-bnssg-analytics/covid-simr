@@ -15,51 +15,50 @@
 #'
 #' @examples
 covid_simr <- function(cases,
-                       galpha,
-                       gbeta,
+                       los_median,
+                       los_95,
                        cap,
                        pfat,
                        tol = 25,
                        nreps = 100) {
-
+  
   # pre-alloacte symbols to NULL to avoid NOTES from CMD check
   dates <- metric <- value <- fill <- time <- outcome <- type <- value_cum <-
-  q01 <- q025 <- q05 <- q15 <- q30 <- q70 <- q85 <- q95 <- q975 <- q99 <-
-  hospitalisations <- occ_q01 <- occ_q025 <- occ_q05 <- occ_q15 <- occ_q30 <-
-  occ_q70 <- occ_q85 <- occ_q95 <- occ_q975 <- occ_q99 <- occ_median <-
-  rejected_died_q01 <- rejected_died_q025 <- rejected_died_q05 <-
-  rejected_died_q15 <- rejected_died_q30 <- rejected_died_q70 <-
-  rejected_died_q85 <- rejected_died_q95 <- rejected_died_q975 <-
-  rejected_died_q99 <- rejected_died_median <-
-  admitted_q01 <- admitted_q025 <- admitted_q05 <- admitted_q15 <-
-  admitted_q30 <- admitted_q70 <- admitted_q85 <- admitted_q95 <-
-  admitted_q975 <- admitted_q99 <- admitted_median <-
-  rejected_survived_q01 <- rejected_survived_q025 <- rejected_survived_q05 <-
-  rejected_survived_q15 <- rejected_survived_q30 <- rejected_survived_q70 <-
-  rejected_survived_q85 <- rejected_survived_q95 <- rejected_survived_q975 <-
-  rejected_survived_q99 <- rejected_survived_median <- NULL
-
-
+    q01 <- q025 <- q05 <- q15 <- q30 <- q70 <- q85 <- q95 <- q975 <- q99 <-
+    hospitalisations <- occ_q01 <- occ_q025 <- occ_q05 <- occ_q15 <- occ_q30 <-
+    occ_q70 <- occ_q85 <- occ_q95 <- occ_q975 <- occ_q99 <- occ_median <-
+    rejected_died_q01 <- rejected_died_q025 <- rejected_died_q05 <-
+    rejected_died_q15 <- rejected_died_q30 <- rejected_died_q70 <-
+    rejected_died_q85 <- rejected_died_q95 <- rejected_died_q975 <-
+    rejected_died_q99 <- rejected_died_median <-
+    admitted_q01 <- admitted_q025 <- admitted_q05 <- admitted_q15 <-
+    admitted_q30 <- admitted_q70 <- admitted_q85 <- admitted_q95 <-
+    admitted_q975 <- admitted_q99 <- admitted_median <-
+    rejected_survived_q01 <- rejected_survived_q025 <- rejected_survived_q05 <-
+    rejected_survived_q15 <- rejected_survived_q30 <- rejected_survived_q70 <-
+    rejected_survived_q85 <- rejected_survived_q95 <- rejected_survived_q975 <-
+    rejected_survived_q99 <- rejected_survived_median <- NULL
+  
+  
   # calculate lognormal distribution parameters from given information (los_mean and los_95)
-  #erfinv<-function(x) qnorm((1+x)/2)/sqrt(2)
-  #meanlog<-log(los_median)
-  #sdlog<-((sqrt(2)*erfinv(0.9))^-1)*log(los_95/los_median)
-
+  meanlog<-log(los_median)
+  sdlog<-((sqrt(2)*qnorm((1+0.9)/2)/sqrt(2))^-1)*log(los_95/los_median)
+  
   # determine whether epidemic curve uncertainty is to be considered
   if (tol > 0 & tol <= 100) {
     uncert <- TRUE
   } else {
     uncert <- FALSE
   }
-
-
+  
+  
   #This section Reads in given daily hospitalisations esimtate from a CSV (based on epidemic curve data, not caculated by this package).
   #    Generates confidence intervals by sampling noise from normal distrubtion, scaling that by a tolerance parameter (given as
   #    a percentage uncertainly as an integer in the range 0-100)  and scaling the orignial hospitalisations estimate using
   #    that (i.e. orignial value * 1+scaling, where the scaling can be +-, floored at -1). The output of this function is
   #    then used internally as the input dataframe by the run_sim_fun function in this package.
-
-
+  
+  
   #create three column dataframe:
   #date (date format)
   #name of metric type (e.g. hospitalisations) (character format)
@@ -68,9 +67,9 @@ covid_simr <- function(cases,
   inputs <- inputs %>%
     dplyr::mutate(dates = as.Date(dates, "%d/%m/%Y")) %>%
     tidyr::pivot_longer(cols = -dates,
-                 names_to = "metric",
-                 values_to = "value")
-
+                        names_to = "metric",
+                        values_to = "value")
+  
   #If a nonzero tolerance has been set (strictly between 0 and 100 - for percent)
   #then uncertaintly about the epidemic curve is assumed
   #and daily arrivals are modified by adding some normally distrubuted noise
@@ -108,44 +107,44 @@ covid_simr <- function(cases,
         q99 = stats::quantile(value, 0.99)
       ) %>%
       tidyr::pivot_longer(cols = -dates,
-                   names_to = "metric",
-                   values_to = "value")
+                          names_to = "metric",
+                          values_to = "value")
     #adds original inputs datframe now has multiple rows for each date
     #one of orignial hospitalisations estimate,
     #for each rep, one with a modified hospitalisations estimate (scaled by the normal sample - itself scaled by the tolerance value)
     #and one for each of the confidence quantiles derived rmo the modified hospitalisations
     inputs <- rbind(inputs, inputs_sim_ci)
   }
-
+  
   #Now run nreps replications of the simulation function to get results for nreps possible
   #actualisations of the parameters
-
+  
   #Do the runs in parallel to speed up processing time
   #Set up the clusters (set to one fewer than the total number of logical cores in the user's comput)
   cl <- parallel::makeCluster(parallel::detectCores() - 1)
   #send necessary objects created in the global environment to the clusters
   parallel::clusterExport(
     cl = cl,
-    varlist = c("uncert", "inputs", "galpha", "gbeta", "cap", "pfat"),
+    varlist = c("uncert", "inputs", "los_median", "los_95", "cap", "pfat"),
     envir = environment()
   )
   #make the libraries used within the simfn function available to the clusters
   parallel::clusterEvalQ(cl = cl,
-               c(library(tidyr),
-                 library(dplyr)))
+                         c(library(tidyr),
+                           library(dplyr)))
   #return results of the replications
   RES <- parallel::parLapply(cl, 1:nreps,
                              simfn,
                              dates = inputs$dates,
                              metric = inputs$metric,
                              value = inputs$value,
-                             galpha = galpha,
-                             gbeta = gbeta,
+                             los_median = los_median,
+                             los_95 = los_95,
                              cap = cap,
                              pfat = pfat,
                              uncert = uncert)
   parallel::stopCluster(cl)
-
+  
   #combine the simulation outputs into a single dataframe
   outputs_sim <- do.call("rbind", RES)
   outputs <- outputs_sim %>%
@@ -177,13 +176,13 @@ covid_simr <- function(cases,
       values_to = "value"
     ) %>%
     tidyr::pivot_wider(names_from = c(outcome, type),
-                values_from = value) %>%
+                       values_from = value) %>%
     dplyr::mutate(dates = seq(
       from = min(inputs$dates) + time - 1,
       by = 1,
       length.out = 1
     ))
-
+  
   outputs_cum <- outputs_sim %>%
     tidyr::pivot_longer(
       cols = -c(rep, time),
@@ -216,16 +215,16 @@ covid_simr <- function(cases,
       values_to = "value_cum"
     ) %>%
     tidyr::pivot_wider(names_from = c(outcome, type),
-                values_from = value_cum) %>%
+                       values_from = value_cum) %>%
     dplyr::mutate(dates = seq(
       from = min(inputs$dates) + time - 1,
       by = 1,
       length.out = 1
     ))
-
-
+  
+  
   ####################################################################################################################################################################
-
+  
   #save inputs (with tolerances/confinece range) and outputs as csvs,
   #in same location script was run from
   #write.csv(inputs,paste0("inputs",filename_ext,".csv"),row.names=FALSE)
@@ -239,7 +238,7 @@ covid_simr <- function(cases,
   #   paste0("outputs_cum", filename_ext, ".csv"),
   #   row.names = FALSE
   # )
-
+  
   #return outputs
   out <- structure(list(data = outputs,
                         outputs_cum = outputs_cum,
@@ -262,7 +261,10 @@ covid_simr <- function(cases,
 #' @return Results of simulation.
 #'
 #' @examples
-simfn <- function(rep, dates, metric, value, galpha, gbeta, cap, pfat, uncert) {
+simfn <- function(rep, dates, metric, value, los_median, los_95, cap, pfat, uncert) {
+  # calculate lognormal distribution parameters from given information (los_mean and los_95)
+  meanlog<-log(los_median)
+  sdlog<-((sqrt(2)*qnorm((1+0.9)/2)/sqrt(2))^-1)*log(los_95/los_median)
   #fix the random number stream for this replication
   #(so that if run again without changing any substantive parameters, the results will be the same)
   #uses rep number so that a different random number stream is initialised for each replication
@@ -356,7 +358,7 @@ simfn <- function(rep, dates, metric, value, galpha, gbeta, cap, pfat, uncert) {
         #which scale it to expected median length of stay for all patients (dervived externally by user
         #from case data or other source)
         los <-
-          stats::rgamma(1, shape = galpha, rate = gbeta)
+          stats::rlnorm(1, meanlog = meanlog, sdlog = sdlog)
         #add the end of this patient's length of stay as an event to the end of the simulation schedule, specifying the event type
         #and the decimal time (given by the patient's service start time plus the LOS just sampled)
         #POTENTIALLY SLOW, AND DONE LOTS OF TIMES ####
@@ -472,24 +474,24 @@ plot.Covidsimr <- function(x, ...) {
   outputs_cum <- x$outputs_cum
   uncert <- x$uncert
   cap <-x$cap
-
+  
   #plot the results
-
+  
   #daily hospitalisations (including resampling and tolerance to give confidence ranges)
   plot1 <- plot_daily_hospitalisations(inputs, outputs, uncert, display = FALSE)
   #bed occupancy over simulation period
-  plot2 <- plot_daily_bed_occupancy(outputs_cum, cap, display = FALSE)
+  plot2 <- plot_daily_bed_occupancy(outputs, cap, display = FALSE)
   #deaths resulting from insufficient capacity over simulation period
-  plot3 <- plot_daily_deaths(outputs_cum, display = FALSE)
+  plot3 <- plot_daily_deaths(outputs, display = FALSE)
   #cumulative total of admitted patients over simulation period
-  plot4 <- plot_cum_total_nonadmitted_surv(outputs_cum, display = FALSE)
+  plot4 <- plot_cum_admissions(outputs_cum, display = FALSE)
   #cumulative total of patients who could not be admitted because of capacity constraints but did
   #surivive, over simulation period
   plot5 <- plot_cum_total_nonadmitted_surv(outputs_cum, display = FALSE)
   #cumulative total of patients who died as a result of insufficent capacity over simulation period
   plot6 <- plot_cum_died_inscap(outputs_cum, display = FALSE)
   gridExtra::grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, nrow = 2)
-
+  
 }
 
 
@@ -555,7 +557,7 @@ plot_daily_hospitalisations <- function(inputs, outputs, uncert, display = TRUE)
   }
   plot <- plot +
     ggplot2::geom_line(ggplot2::aes_string(y = "hospitalisations"))
-
+  
   if(display){print(plot)}
   invisible(plot)
 }
@@ -614,7 +616,7 @@ plot_daily_bed_occupancy <- function(outputs, cap, display=TRUE) {
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
     ) +
     ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y")
-
+  
   if(display){print(plot)}
   invisible(plot)
 }
@@ -685,7 +687,7 @@ plot_daily_deaths <- function(outputs, display = TRUE) {
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
     ) +
     ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y")
-
+  
   if(display){print(plot)}
   invisible(plot)
 }
@@ -750,7 +752,7 @@ plot_cum_admissions <- function(outputs_cum, display=TRUE) {
       plot.title = ggplot2::element_text(size = 11),
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
     )
-
+  
   if(display){print(plot)}
   invisible(plot)
 }
@@ -834,7 +836,7 @@ plot_cum_total_nonadmitted_surv <- function(outputs_cum, display=TRUE) {
       plot.title = ggplot2::element_text(size = 11),
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
     )
-
+  
   if(display){print(plot)}
   invisible(plot)
 }
@@ -915,7 +917,7 @@ plot_cum_died_inscap <- function(outputs_cum, display=TRUE) {
       plot.title = ggplot2::element_text(size = 11),
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
     )
-
+  
   if(display){print(plot)}
   invisible(plot)
 }
@@ -936,11 +938,14 @@ plot_cum_died_inscap <- function(outputs_cum, display=TRUE) {
 #'
 #' @examples
 plot_case_scenario <- function(case_df, display = TRUE) {
+  dates <- NULL # preallocate
+  
   if(any(!c("hospitalisations", "dates") %in% names(case_df))) stop("Data does not contain the variables 'hospitalisations' and 'dates'")
-
+  case_df <- case_df %>%
+    dplyr::mutate(case_df, dates = lubridate::dmy(dates))
   p <- ggplot2::ggplot(case_df,
-                       ggplot2::aes_string(x = lubridate::dmy("dates"),
-                                    y = "hospitalisations"))
+                       ggplot2::aes_string(x = "dates",
+                                           y = "hospitalisations"))
   p <- p + ggplot2::geom_line()
   p <- p + ggplot2::labs(title = "Hospitlisations over time",
                          x = "Date")
