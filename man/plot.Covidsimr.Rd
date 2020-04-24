@@ -2,21 +2,7 @@
 % Please edit documentation in R/covid_simr-gamma.R
 \name{plot.Covidsimr}
 \alias{plot.Covidsimr}
-\title{#' Return output results as a \code{data.frame}
-#'
-#' @param x a \code{Covidsimr} oject.
-#' @param ...  any other paramters.
-#'
-#' @return a \code{data.frame} of the output results.
-#' @export
-#'
-#' @examples
-#' @rdname  as.data.frame
-#' @method as.data.frame Covidsimr
-as.data.frame.CovidsimR <- function(x, ...){
-data.frame(x$data)
-}
-Plot output of COVID-19 simulation}
+\title{Plot output of COVID-19 simulation}
 \usage{
 \method{plot}{Covidsimr}(x, ...)
 }
@@ -29,19 +15,5 @@ Plot output of COVID-19 simulation}
 Mosaic plot of diagnostic charts from simulation.
 }
 \description{
-#' Return output results as a \code{data.frame}
-#'
-#' @param x a \code{Covidsimr} oject.
-#' @param ...  any other paramters.
-#'
-#' @return a \code{data.frame} of the output results.
-#' @export
-#'
-#' @examples
-#' @rdname  as.data.frame
-#' @method as.data.frame Covidsimr
-as.data.frame.CovidsimR <- function(x, ...){
-data.frame(x$data)
-}
 Plot output of COVID-19 simulation
 }

@@ -4,10 +4,10 @@
 \alias{plot_cum_admissions}
 \title{Plot cumulative total of admitted patients over simulation period}
 \usage{
-plot_cum_admissions(outputs_cum, display = TRUE)
+plot_cum_admissions(data_cum, display = TRUE)
 }
 \arguments{
-\item{outputs_cum}{\code{data.frame}, cummalative output data.}
+\item{data_cum}{\code{data.frame}, cummalative output data.}
 
 \item{display}{\code{log}, defaults to \code{TRUE}. Should the plot display or not.}
 }

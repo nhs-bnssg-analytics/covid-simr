@@ -1,14 +1,21 @@
 #' Covid-19 ICU bed-occupancy simulation
 #'
 #' @param cases \code{data.frame}, hosptialisation data, one column named \code{date} (string), and one column named \code{hospitalisations} which is an integer recording new cases for that date.
-#' @param galpha \code{positive numeric}, median length of stay for admitted covid19 pateints, to be estimated by user from data or other source
-#' @param gbeta \code{positive numeric}, 0.95 quantile length of stay for admitted covid19 patients, to be estimated by user from data or other source
+#' @param los_median \code{positive numeric}, median length of stay (in days) for admitted covid19 pateints, to be estimated by user from data or other source
+#' @param los_95 \code{positive numeric}, 0.95 quantile length of stay (in days) for admitted covid19 patients, to be estimated by user from data or other source
 #' @param cap \code{positive integer}, maximum number of patients who can be concurrently admitted to the hospital/unit
 #' @param pfat \code{numeric} in range 0 (no chance of death) to 1 (certain death), probability that a patient who arrives but is rejected/cannot be admitted (because there are no beds free) dies
 #' @param tol \code{numeric} between 0 and 100, with 0 corresponding to full confidence inputs are correct, with 100 least level of confidence, subjective assessment of reliability of input hospitalisation estiamtes
 #' @param nreps \code{positive integer}, number of simulation replications to perform - larger number means better results, but longer time to compute
 #'
-#' @return An object of type \code{Covidsimr}
+#' @return An object of type \code{Covidsimr}, which is a list including the slots:
+#'   \itemize{
+#'     \item{\code{data},}{ Output results from simulation}
+#'     \item{\code{data_cum},}{ Output results from simulation, in cumulative form}
+#'     \item{\code{tol},}{ \code{TRUE/FALSE} based on whether a tolerance has been set in the function inputs}
+#'     \item{\code{cap},}{ Maximum ICU capactiy}
+#'   }
+#'   Of most interest to users are \code{data} and \code{data_cum}, the other elements are included for use in the plotting functions.
 #' @export
 #'
 #' @importFrom magrittr %>%
@@ -21,7 +28,7 @@ covid_simr <- function(cases,
                        pfat,
                        tol = 25,
                        nreps = 100) {
-  
+
   # pre-alloacte symbols to NULL to avoid NOTES from CMD check
   dates <- metric <- value <- fill <- time <- outcome <- type <- value_cum <-
     q01 <- q025 <- q05 <- q15 <- q30 <- q70 <- q85 <- q95 <- q975 <- q99 <-
@@ -38,27 +45,27 @@ covid_simr <- function(cases,
     rejected_survived_q15 <- rejected_survived_q30 <- rejected_survived_q70 <-
     rejected_survived_q85 <- rejected_survived_q95 <- rejected_survived_q975 <-
     rejected_survived_q99 <- rejected_survived_median <- NULL
-  
-  
+
+
   # calculate lognormal distribution parameters from given information (los_mean and los_95)
   meanlog<-log(los_median)
-  sdlog<-((sqrt(2)*qnorm((1+0.9)/2)/sqrt(2))^-1)*log(los_95/los_median)
-  
+  sdlog<-((sqrt(2)*stats::qnorm((1+0.9)/2)/sqrt(2))^-1)*log(los_95/los_median)
+
   # determine whether epidemic curve uncertainty is to be considered
   if (tol > 0 & tol <= 100) {
     uncert <- TRUE
   } else {
     uncert <- FALSE
   }
-  
-  
+
+
   #This section Reads in given daily hospitalisations esimtate from a CSV (based on epidemic curve data, not caculated by this package).
   #    Generates confidence intervals by sampling noise from normal distrubtion, scaling that by a tolerance parameter (given as
   #    a percentage uncertainly as an integer in the range 0-100)  and scaling the orignial hospitalisations estimate using
   #    that (i.e. orignial value * 1+scaling, where the scaling can be +-, floored at -1). The output of this function is
   #    then used internally as the input dataframe by the run_sim_fun function in this package.
-  
-  
+
+
   #create three column dataframe:
   #date (date format)
   #name of metric type (e.g. hospitalisations) (character format)
@@ -69,7 +76,7 @@ covid_simr <- function(cases,
     tidyr::pivot_longer(cols = -dates,
                         names_to = "metric",
                         values_to = "value")
-  
+
   #If a nonzero tolerance has been set (strictly between 0 and 100 - for percent)
   #then uncertaintly about the epidemic curve is assumed
   #and daily arrivals are modified by adding some normally distrubuted noise
@@ -115,10 +122,10 @@ covid_simr <- function(cases,
     #and one for each of the confidence quantiles derived rmo the modified hospitalisations
     inputs <- rbind(inputs, inputs_sim_ci)
   }
-  
+
   #Now run nreps replications of the simulation function to get results for nreps possible
   #actualisations of the parameters
-  
+
   #Do the runs in parallel to speed up processing time
   #Set up the clusters (set to one fewer than the total number of logical cores in the user's comput)
   cl <- parallel::makeCluster(parallel::detectCores() - 1)
@@ -144,7 +151,7 @@ covid_simr <- function(cases,
                              pfat = pfat,
                              uncert = uncert)
   parallel::stopCluster(cl)
-  
+
   #combine the simulation outputs into a single dataframe
   outputs_sim <- do.call("rbind", RES)
   outputs <- outputs_sim %>%
@@ -182,8 +189,8 @@ covid_simr <- function(cases,
       by = 1,
       length.out = 1
     ))
-  
-  outputs_cum <- outputs_sim %>%
+
+  data_cum <- outputs_sim %>%
     tidyr::pivot_longer(
       cols = -c(rep, time),
       names_to = "outcome",
@@ -221,10 +228,10 @@ covid_simr <- function(cases,
       by = 1,
       length.out = 1
     ))
-  
-  
+
+
   ####################################################################################################################################################################
-  
+
   #save inputs (with tolerances/confinece range) and outputs as csvs,
   #in same location script was run from
   #write.csv(inputs,paste0("inputs",filename_ext,".csv"),row.names=FALSE)
@@ -234,14 +241,14 @@ covid_simr <- function(cases,
   #   row.names = FALSE
   # )
   # utils::write.csv(
-  #   cbind(data.frame(cap = cap), as.data.frame(outputs_cum)),
-  #   paste0("outputs_cum", filename_ext, ".csv"),
+  #   cbind(data.frame(cap = cap), as.data.frame(data_cum)),
+  #   paste0("data_cum", filename_ext, ".csv"),
   #   row.names = FALSE
   # )
-  
+
   #return outputs
   out <- structure(list(data = outputs,
-                        outputs_cum = outputs_cum,
+                        data_cum = data_cum,
                         inputs = inputs,
                         uncert = uncert,
                         cap = cap),
@@ -441,23 +448,6 @@ print.Covidsimr <- function(x, ...){
   print(tibble::tibble(x$data))
 }
 
-
-#' #' Return output results as a \code{data.frame}
-#' #'
-#' #' @param x a \code{Covidsimr} oject.
-#' #' @param ...  any other paramters.
-#' #'
-#' #' @return a \code{data.frame} of the output results.
-#' #' @export
-#' #'
-#' #' @examples
-#' #' @rdname  as.data.frame
-#' #' @method as.data.frame Covidsimr
-#' as.data.frame.CovidsimR <- function(x, ...){
-#' data.frame(x$data)
-#' }
-
-
 #' Plot output of COVID-19 simulation
 #'
 #' @param x a \code{CovidsimR} object.
@@ -471,12 +461,12 @@ print.Covidsimr <- function(x, ...){
 plot.Covidsimr <- function(x, ...) {
   inputs  <- x$inputs
   outputs <- x$data
-  outputs_cum <- x$outputs_cum
+  data_cum <- x$data_cum
   uncert <- x$uncert
   cap <-x$cap
-  
+
   #plot the results
-  
+
   #daily hospitalisations (including resampling and tolerance to give confidence ranges)
   plot1 <- plot_daily_hospitalisations(inputs, outputs, uncert, display = FALSE)
   #bed occupancy over simulation period
@@ -484,14 +474,14 @@ plot.Covidsimr <- function(x, ...) {
   #deaths resulting from insufficient capacity over simulation period
   plot3 <- plot_daily_deaths(outputs, display = FALSE)
   #cumulative total of admitted patients over simulation period
-  plot4 <- plot_cum_admissions(outputs_cum, display = FALSE)
+  plot4 <- plot_cum_admissions(data_cum, display = FALSE)
   #cumulative total of patients who could not be admitted because of capacity constraints but did
   #surivive, over simulation period
-  plot5 <- plot_cum_total_nonadmitted_surv(outputs_cum, display = FALSE)
+  plot5 <- plot_cum_total_nonadmitted_surv(data_cum, display = FALSE)
   #cumulative total of patients who died as a result of insufficent capacity over simulation period
-  plot6 <- plot_cum_died_inscap(outputs_cum, display = FALSE)
+  plot6 <- plot_cum_died_inscap(data_cum, display = FALSE)
   gridExtra::grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, nrow = 2)
-  
+
 }
 
 
@@ -557,7 +547,7 @@ plot_daily_hospitalisations <- function(inputs, outputs, uncert, display = TRUE)
   }
   plot <- plot +
     ggplot2::geom_line(ggplot2::aes_string(y = "hospitalisations"))
-  
+
   if(display){print(plot)}
   invisible(plot)
 }
@@ -616,7 +606,7 @@ plot_daily_bed_occupancy <- function(outputs, cap, display=TRUE) {
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
     ) +
     ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y")
-  
+
   if(display){print(plot)}
   invisible(plot)
 }
@@ -687,7 +677,7 @@ plot_daily_deaths <- function(outputs, display = TRUE) {
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
     ) +
     ggplot2::scale_x_date(date_breaks = "months", date_labels = "%b-%y")
-  
+
   if(display){print(plot)}
   invisible(plot)
 }
@@ -697,15 +687,15 @@ plot_daily_deaths <- function(outputs, display = TRUE) {
 #'
 #' @inheritParams plot_daily_hospitalisations
 #' @inheritParams plot_cum_total_nonadmitted_surv
-#' @param outputs_cum \code{data.frame}, cummalative output data.
+#' @param data_cum \code{data.frame}, cummalative output data.
 #'
 #' @return Plot of cumulative total addmitted patients over time. Invisibly returns the plot object.
 #' @export
 #'
 #' @examples
-plot_cum_admissions <- function(outputs_cum, display=TRUE) {
+plot_cum_admissions <- function(data_cum, display=TRUE) {
   #cumulative total of admitted patients over simulation period
-  plot <- outputs_cum %>%
+  plot <- data_cum %>%
     ggplot2::ggplot(ggplot2::aes_string(x = "dates")) +
     #admitted
     ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "admitted_q01", ymax = "admitted_q025"),
@@ -741,9 +731,9 @@ plot_cum_admissions <- function(outputs_cum, display=TRUE) {
     ggplot2::ylim(
       0,
       max(
-        outputs_cum$admitted_q99,
-        outputs_cum$rejected_died_q99,
-        outputs_cum$rejected_survived_q99
+        data_cum$admitted_q99,
+        data_cum$rejected_died_q99,
+        data_cum$rejected_survived_q99
       )
     ) +
     ggplot2::theme(
@@ -752,7 +742,7 @@ plot_cum_admissions <- function(outputs_cum, display=TRUE) {
       plot.title = ggplot2::element_text(size = 11),
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
     )
-  
+
   if(display){print(plot)}
   invisible(plot)
 }
@@ -768,10 +758,10 @@ plot_cum_admissions <- function(outputs_cum, display=TRUE) {
 #' @export
 #'
 #' @examples
-plot_cum_total_nonadmitted_surv <- function(outputs_cum, display=TRUE) {
+plot_cum_total_nonadmitted_surv <- function(data_cum, display=TRUE) {
   #cumulative total of patients who could not be admitted because of capacity constraints but did
   #surivive, over simulation period
-  plot <- outputs_cum %>%
+  plot <- data_cum %>%
     ggplot2::ggplot(ggplot2::aes_string(x = "dates")) +
     #rejected-survived
     ggplot2::geom_ribbon(
@@ -825,9 +815,9 @@ plot_cum_total_nonadmitted_surv <- function(outputs_cum, display=TRUE) {
     ggplot2::ylim(
       0,
       max(
-        outputs_cum$admitted_q99,
-        outputs_cum$rejected_died_q99,
-        outputs_cum$rejected_survived_q99
+        data_cum$admitted_q99,
+        data_cum$rejected_died_q99,
+        data_cum$rejected_survived_q99
       )
     ) +
     ggplot2::theme(
@@ -836,7 +826,7 @@ plot_cum_total_nonadmitted_surv <- function(outputs_cum, display=TRUE) {
       plot.title = ggplot2::element_text(size = 11),
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
     )
-  
+
   if(display){print(plot)}
   invisible(plot)
 }
@@ -850,9 +840,9 @@ plot_cum_total_nonadmitted_surv <- function(outputs_cum, display=TRUE) {
 #' @export
 #'
 #' @examples
-plot_cum_died_inscap <- function(outputs_cum, display=TRUE) {
+plot_cum_died_inscap <- function(data_cum, display=TRUE) {
   #cumulative total of patients who died as a result of insufficent capacity over simulation period
-  plot <- outputs_cum %>%
+  plot <- data_cum %>%
     ggplot2::ggplot(ggplot2::aes_string(x = "dates")) +
     #rejected-died
     ggplot2::geom_ribbon(
@@ -906,9 +896,9 @@ plot_cum_died_inscap <- function(outputs_cum, display=TRUE) {
     ggplot2::ylim(
       0,
       max(
-        outputs_cum$admitted_q99,
-        outputs_cum$rejected_died_q99,
-        outputs_cum$rejected_survived_q99
+        data_cum$admitted_q99,
+        data_cum$rejected_died_q99,
+        data_cum$rejected_survived_q99
       )
     ) +
     ggplot2::theme(
@@ -917,7 +907,7 @@ plot_cum_died_inscap <- function(outputs_cum, display=TRUE) {
       plot.title = ggplot2::element_text(size = 11),
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
     )
-  
+
   if(display){print(plot)}
   invisible(plot)
 }
@@ -939,7 +929,7 @@ plot_cum_died_inscap <- function(outputs_cum, display=TRUE) {
 #' @examples
 plot_case_scenario <- function(case_df, display = TRUE) {
   dates <- NULL # preallocate
-  
+
   if(any(!c("hospitalisations", "dates") %in% names(case_df))) stop("Data does not contain the variables 'hospitalisations' and 'dates'")
   case_df <- case_df %>%
     dplyr::mutate(case_df, dates = lubridate::dmy(dates))

@@ -4,10 +4,10 @@
 \alias{plot_cum_died_inscap}
 \title{Plot cumulative total of patients who died as a result of insufficent capacity over simulation period}
 \usage{
-plot_cum_died_inscap(outputs_cum, display = TRUE)
+plot_cum_died_inscap(data_cum, display = TRUE)
 }
 \arguments{
-\item{outputs_cum}{\code{data.frame}, cummalative output data.}
+\item{data_cum}{\code{data.frame}, cummalative output data.}
 
 \item{display}{\code{log}, defaults to \code{TRUE}. Should the plot display or not.}
 }

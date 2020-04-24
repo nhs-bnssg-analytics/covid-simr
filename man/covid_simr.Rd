@@ -4,14 +4,14 @@
 \alias{covid_simr}
 \title{Covid-19 ICU bed-occupancy simulation}
 \usage{
-covid_simr(cases, galpha, gbeta, cap, pfat, tol = 25, nreps = 100)
+covid_simr(cases, los_median, los_95, cap, pfat, tol = 25, nreps = 100)
 }
 \arguments{
 \item{cases}{\code{data.frame}, hosptialisation data, one column named \code{date} (string), and one column named \code{hospitalisations} which is an integer recording new cases for that date.}
 
-\item{galpha}{\code{positive numeric}, median length of stay for admitted covid19 pateints, to be estimated by user from data or other source}
+\item{los_median}{\code{positive numeric}, median length of stay (in days) for admitted covid19 pateints, to be estimated by user from data or other source}
 
-\item{gbeta}{\code{positive numeric}, 0.95 quantile length of stay for admitted covid19 patients, to be estimated by user from data or other source}
+\item{los_95}{\code{positive numeric}, 0.95 quantile length of stay (in days) for admitted covid19 patients, to be estimated by user from data or other source}
 
 \item{cap}{\code{positive integer}, maximum number of patients who can be concurrently admitted to the hospital/unit}
 
@@ -22,7 +22,14 @@ covid_simr(cases, galpha, gbeta, cap, pfat, tol = 25, nreps = 100)
 \item{nreps}{\code{positive integer}, number of simulation replications to perform - larger number means better results, but longer time to compute}
 }
 \value{
-An object of type \code{Covidsimr}
+An object of type \code{Covidsimr}, which is a list including the slots:
+\itemize{
+\item{\code{data},}{ Output results from simulation}
+\item{\code{data_cum},}{ Output results from simulation, in cumulative form}
+\item{\code{tol},}{ \code{TRUE/FALSE} based on whether a tolerance has been set in the function inputs}
+\item{\code{cap},}{ Maximum ICU capactiy}
+}
+Of most interest to users are \code{data} and \code{data_cum}, the other elements are included for use in the plotting functions.
 }
 \description{
 Covid-19 ICU bed-occupancy simulation

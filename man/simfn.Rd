@@ -4,7 +4,7 @@
 \alias{simfn}
 \title{COVID-19 ICU bed occupancy simulation}
 \usage{
-simfn(rep, dates, metric, value, galpha, gbeta, cap, pfat, uncert)
+simfn(rep, dates, metric, value, los_median, los_95, cap, pfat, uncert)
 }
 \arguments{
 \item{rep}{(\code{postive integer}), number of repetitions in simulation.}
@@ -15,9 +15,9 @@ simfn(rep, dates, metric, value, galpha, gbeta, cap, pfat, uncert)
 
 \item{value}{PLACEHOLDER}
 
-\item{galpha}{\code{positive numeric}, median length of stay for admitted covid19 pateints, to be estimated by user from data or other source}
+\item{los_median}{\code{positive numeric}, median length of stay (in days) for admitted covid19 pateints, to be estimated by user from data or other source}
 
-\item{gbeta}{\code{positive numeric}, 0.95 quantile length of stay for admitted covid19 patients, to be estimated by user from data or other source}
+\item{los_95}{\code{positive numeric}, 0.95 quantile length of stay (in days) for admitted covid19 patients, to be estimated by user from data or other source}
 
 \item{cap}{\code{positive integer}, maximum number of patients who can be concurrently admitted to the hospital/unit}
 
