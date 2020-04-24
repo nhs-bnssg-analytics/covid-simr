@@ -49,18 +49,18 @@ Some hospitalisation scenarios are included in the package and can be found in t
 
 The primary function of the package is `covid_simr()`, which requires the following arguments:
 
-- 'cases' must be a data.frame containing daily hospitalisation numbers (column 2 'hospitalisations') over the considered date range (column 1 'dates')
+- `cases` must be a data.frame containing daily hospitalisation numbers (column 2 `hospitalisations`) over the considered date range (column 1 `dates`)
 
-- 'los_median' is the median length of stay (LOS) for hospitalised cases (in days)
+- `los_median` is the median length of stay (LOS) for hospitalised cases (in days)
 
-- 'los_95' is the 95th quantile of LOS, i.e. the LOS (in days) such that only 1 in 20 of patients experience a greater duration
+- `los_95` is the 95th quantile of LOS, i.e. the LOS (in days) such that only 1 in 20 of patients experience a greater duration
 
-- 'cap' is the number of beds (acute or ICU) for which occupancy cannot be exceeded
--'pfat' is the probabilty that a patient who cannot be admitted dies (a number in the range 0 to 1, e.g. 0.5 corresponds to a 50% chance, 0.75 to a 75% chance, 1 to all patients who cannot be admitted dying)
+- `cap` is the number of beds (acute or ICU) for which occupancy cannot be exceeded
+-`pfat` is the probabilty that a patient who cannot be admitted dies (a number in the range 0 to 1, e.g. 0.5 corresponds to a 50% chance, 0.75 to a 75% chance, 1 to all patients who cannot be admitted dying)
 
-- 'tol' is an optional tolerance parameter (default 25) which can be flexed to represent a level of uncertainty around the case projection (range 0 to 100)
+- `tol` is an optional tolerance parameter (default 25) which can be flexed to represent a level of uncertainty around the case projection (range 0 to 100)
 
-- 'nreps' is the number of simulation replications (more reps, greater accuracy, but takes longer)
+- `nreps` is the number of simulation replications (more reps, greater accuracy, but takes longer)
 
 # OUTPUTS
 
@@ -85,17 +85,17 @@ The simulation output list also includes some element that are used in plotting 
 
 This mosasic plot shows
 
-- (i) cases per day requiring hospitalisation,
+ (i) cases per day requiring hospitalisation,
 
-- (ii) occupied beds per day,
+ (ii) occupied beds per day,
 
-- (iii) deaths resulting from insufficient capacity per day,
+ (iii) deaths resulting from insufficient capacity per day,
 
-- (iv) cumulative number of admitted patients,
+ (iv) cumulative number of admitted patients,
 
-- (v) cumulative total of patients who could not be admitted but survived, and 
+ (v) cumulative total of patients who could not be admitted but survived, and 
 
-- (vi) cumulative total of patients who died because they could not be admitted
+ (vi) cumulative total of patients who died because they could not be admitted
 
 
 - Each of these plots includes shaded bands showing confidence estimates for these values
