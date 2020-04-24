@@ -81,9 +81,9 @@ The simulation output list also includes some element that are used in plotting 
 
 # VIEWING THE OUTPUTS
 
-- A plot containg a grid of six plots can be generated using the `plot()` function on the output object from `covid_simr()`
+A plot containg a grid of six plots can be generated using the `plot()` function on the output object from `covid_simr()`
 
-This mosasic plot shows
+This mosasic plot shows:
 
  (i) cases per day requiring hospitalisation,
 
@@ -97,6 +97,7 @@ This mosasic plot shows
 
  (vi) cumulative total of patients who died because they could not be admitted
 
+Additionally,
 
 - Each of these plots includes shaded bands showing confidence estimates for these values
 
