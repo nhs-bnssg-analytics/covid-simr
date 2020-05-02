@@ -334,6 +334,8 @@ simfn <- function(rep, dates, metric, value, los_median, los_95, cap, pfat, unce
                     cal$event %in% c("arrival", "endsrv"))
     #find the row of the schedule which corresponds to the earliest of those events and return its index
     ind <- ind1[which.min(cal$time[ind1])]
+    tx_old<-tx
+    occ_old<-occ
     #advance the simulation clock to that time
     tx <- cal$time[ind]
     #return the start time of the next full schedule day after the current simulation clock time
@@ -417,11 +419,9 @@ simfn <- function(rep, dates, metric, value, los_median, los_95, cap, pfat, unce
     #THIS WILL BE SLOW - AND DONE LOTS OF TIMES ####
     cal <- cal[order(cal$time),]
     #save results, extract performance measures
-    #Each row in the output dataframe "res" up to this point has measures for that calendar date - cumulative admissions,
-    #cumulative rejections who survived, cumulative rejections who died, and current occupancy for that date
-    #but the occupancy remains zero
-    #this sets the occupancy to value it had during the last event which occured during that day.
-    res$occ[tx_day] <- occ
+    res_ind<-which(res$time==tx_day)
+    wt_new<-(tx-tx_old)/tx
+    res$occ[res_ind]<-ifelse(is.na(res$occ[res_ind]),(tx-floor(tx))*occ_old+(ceiling(tx)-tx)*occ,wt_new*occ+(1-wt_new)*res$occ[res_ind])
   }
   #for time periods where there was no event, the occupancy field in the results will be NA
   #replace this to be (i) zero if it is the first day
