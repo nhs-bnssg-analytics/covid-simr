@@ -1,5 +1,5 @@
 Package: covidsimR
-Title: What the Package Does (One Line, Title Case)
+Title: easy-to-use function for modelling the effect of different mitigating scenarios on projected capacity-dependent covid19 deaths
 Version: 0.0.0.9000
 Authors@R: 
     c(person(given = "Richard",
@@ -9,7 +9,11 @@ Authors@R:
       person(given = "Nick",
              family = "Howlett",
              role = "ctb",
-             email = "nhowlett87@gmail.com"))
+             email = "nhowlett87@gmail.com"),
+      person(given = "Ben",
+             family = "Murch",
+             role = "ctb",
+             email = "ben.murch@nhs.net"))
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Depends: 
