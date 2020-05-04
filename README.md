@@ -110,7 +110,7 @@ Additionally,
 The package can be installed using `{devtools}` as follows:
 
 ```{r}
-devtools::install_github("https://github.com/nhs-bnssg-analytics/covid-simr-hospital-application", ref = "nhowlett_dev")
+devtools::install_github("https://github.com/nhs-bnssg-analytics/covid-simr")
 ```
 
 A simulation can be run for a given scenario as such (for the current strategy scenario):
